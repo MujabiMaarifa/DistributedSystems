@@ -12,6 +12,13 @@ class CalculatorService:
     def subtract(self, a, b):
         print("subtract function executing")
         return a-b
+    def divide(self,a,b):
+        print("Division function executing")
+        try:
+            result=a/b
+            return result
+        except ZeroDivisionError:
+            return "Cannot Divide by Zero"
 
 @Pyro4.expose
 class StudentService:

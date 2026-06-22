@@ -5,6 +5,7 @@ greeting_uri = "PYRONAME:Greeting"
 calculator_uri = "PYRONAME:Calculations"
 student_uri = "PYRONAME:Student"
 service_uri = "PYRONAME:report.service"
+counter_uri = "PYRONAME:counter"
 
 #access the exposed objects
 try:
@@ -13,6 +14,11 @@ try:
     student = Pyro4.Proxy(student_uri)
     service= Pyro4.Proxy(service_uri)
     future = Pyro4.Future(service.generateReport)
+    counter = Pyro4.Proxy(counter_uri)
+
+    for i in range(15):
+        counter.increment()
+    print("Current count: ", counter.getCount())
 
     print("Request sent...")
 

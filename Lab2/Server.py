@@ -4,6 +4,29 @@ import time
 import os
 
 @Pyro4.expose
+class SecureService:
+
+    def getSecretData(self):
+        return "Sensitive data returned"
+
+
+# authentication handler
+class AuthHandler:
+
+    def __init__(self):
+        self.users = {
+            "admin": "12345",
+            "student": "labpass"
+        }
+
+    def validate(self, username, password):
+        if username in self.users:
+            return self.users[username] == password
+
+        return False
+
+
+@Pyro4.expose
 class Greeting:
     def say_hello(self, name):
         return f"Hello, {name}!"
@@ -81,22 +104,27 @@ class CounterService:
 daemon = Pyro4.Daemon()
 ns = Pyro4.locateNS()
 
-#instantiate counter
+#instantiates
+auth = AuthHandler()
+daemon.validate = auth.validate
 counter = CounterService()
 
 # Register the objects
+auth_uri = daemon.register(auth)
 greeting_uri = daemon.register(Greeting)
 calculator_uri = daemon.register(CalculatorService)
 student_uri = daemon.register(StudentService)
 report_uri = daemon.register(GenerateReport)
 counter_uri = daemon.register(counter)
 
+ns.register("Auth", auth_uri)
 ns.register("Greeting", greeting_uri)
 ns.register("Calculations", calculator_uri)
 ns.register("Student", student_uri)
 ns.register("report.service", report_uri)
 ns.register("counter", counter_uri)
 
+print("authentication is on !.!")
 print("Server is ready...")
 print("Report Service ready!")
 print("Counter service is running!")

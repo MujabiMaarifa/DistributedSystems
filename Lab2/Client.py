@@ -6,15 +6,24 @@ calculator_uri = "PYRONAME:Calculations"
 student_uri = "PYRONAME:Student"
 service_uri = "PYRONAME:report.service"
 counter_uri = "PYRONAME:counter"
+auth_uri = "PYRONAME:Auth"
 
 #access the exposed objects
 try:
+    auth = Pyro4.Proxy(auth_uri)
     greeting = Pyro4.Proxy(greeting_uri)
     calculator = Pyro4.Proxy(calculator_uri)
     student = Pyro4.Proxy(student_uri)
     service= Pyro4.Proxy(service_uri)
     future = Pyro4.Future(service.generateReport)
     counter = Pyro4.Proxy(counter_uri)
+
+    auth._pyroHmacKey = b"12345"
+    try:
+        result = auth.getSecretData()
+        print(result)
+    except Exception as e:
+        print("Access Denied:", e)
 
     for i in range(15):
         counter.increment()
@@ -42,7 +51,7 @@ try:
     print(student.getStudent("Arnold Mutwiri", "C026-01-0802/2024"))
 
     print("Client finished")
-except ServerException:
-    print("Could not connect to the exposed proxy")
+except Exception as e:
+    print("Method could not be found! ", e)
 
 

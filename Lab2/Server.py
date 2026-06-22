@@ -1,4 +1,6 @@
 import Pyro4
+import time
+
 @Pyro4.expose
 class Greeting:
     def say_hello(self, name):
@@ -26,6 +28,14 @@ class StudentService:
         print("getStudent funtion running")
         return f"Student name: {name}, REG: {regNO}"
 
+@Pyro4.expose
+class GenerateReport:
+    def generateReport(self):
+        print("Generating Report...")
+        time.sleep(10)
+        return "Report generated successfully"
+
+
 # Setup the daemon and the name server
 daemon = Pyro4.Daemon()
 ns = Pyro4.locateNS()
@@ -34,10 +44,14 @@ ns = Pyro4.locateNS()
 greeting_uri = daemon.register(Greeting)
 calculator_uri = daemon.register(CalculatorService)
 student_uri = daemon.register(StudentService)
+report_uri = daemon.register(GenerateReport)
 
 ns.register("Greeting", greeting_uri)
 ns.register("Calculations", calculator_uri)
 ns.register("Student", student_uri)
+ns.register("report.service", report_uri)
+
 
 print("Server is ready...")
+print("Report Service ready!")
 daemon.requestLoop()
